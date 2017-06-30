@@ -191,8 +191,6 @@ class HTTPClient
     #
     # Calling this method resets all existing sessions.
     def set_default_paths
-      @cacerts_loaded = true # avoid lazy override
-      @cert_store = X509::Store.new
       @cert_store.set_default_paths
       change_notify
     end
@@ -249,6 +247,8 @@ class HTTPClient
     # Loads default trust anchors.
     # Calling this method resets all existing sessions.
     def load_trust_ca
+      @cacerts_loaded = true # avoid lazy override
+      @cert_store = X509::Store.new
       load_cacerts(@cert_store)
       change_notify
     end
@@ -282,7 +282,8 @@ class HTTPClient
 
     # interfaces for SSLSocket.
     def set_context(ctx) # :nodoc:
-      load_trust_ca unless @cacerts_loaded
+      # load_trust_ca unless @cacerts_loaded
+      set_default_paths unless @cacerts_loaded
       @cacerts_loaded = true
       # Verification: Use Store#verify_callback instead of SSLContext#verify*?
       ctx.cert_store = @cert_store

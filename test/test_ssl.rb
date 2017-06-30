@@ -235,13 +235,15 @@ else
 end
 
   def test_set_default_paths
-    assert_raise(OpenSSL::SSL::SSLError) do
-      @client.get(@url)
-    end
     escape_env do
       ENV['SSL_CERT_FILE'] = File.join(DIR, 'ca-chain.pem')
-      @client.ssl_config.set_default_paths
       @client.get(@url)
+    end
+    assert_raise(OpenSSL::SSL::SSLError) do
+      escape_env do
+        @client.ssl_config.load_trust_ca
+        @client.get(@url)
+      end
     end
   end
 
